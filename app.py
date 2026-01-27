@@ -138,13 +138,24 @@ def add_url():
     return jsonify({'message': 'URLs added to the queue.', 'queued_urls': queued_urls})
     
     
-    # Function to check if a download is complete
-def is_download_complete(download_path, filename):
-    while not os.path.exists(os.path.join(download_path, filename)):
-        time.sleep(1)
+#     # Function to check if a download is complete
+# def is_download_complete(download_path, filename):
+#     while not os.path.exists(os.path.join(download_path, filename)):
+#         time.sleep(1)
     
-    while os.path.exists(os.path.join(download_path, filename + ".crdownload")):
+#     while os.path.exists(os.path.join(download_path, filename + ".crdownload")):
+#         time.sleep(1)
+
+    # Function to get last downloaded file
+def get_last_downloaded(download_path):
+    files = os.listdir(download_path)
+    # Sort files by modification time
+    files.sort(key=lambda x: os.path.getmtime(os.path.join(download_path, x)))
+    if '.crdownload' in files[-1]:
         time.sleep(1)
+        return get_last_downloaded(download_path)
+    else:
+        return files[-1]
 
     # Function to get the filename from the webpage
 def get_filename_from_webpage(driver):
@@ -200,12 +211,14 @@ def start_download(message):
             button.click()
 
             
-            filename = get_filename_from_webpage(driver)  # Get the filename
+            # filename = get_filename_from_webpage(driver)  # Get the filename
 
-            # Check if the download is complete
-            is_download_complete(dd, filename)
+            # # Check if the download is complete
+            # is_download_complete(dd, filename)
 
-
+            time.sleep(5)
+            filename = get_last_downloaded(download_dir)
+            print('File Name: ' + filename)
         
             # Time to wait before looping
             sleep_time = random.randint(5, 30)  # Random time between 5 and 30 seconds
