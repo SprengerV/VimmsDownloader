@@ -5,6 +5,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 import time
 import os
 import mysql.connector
@@ -13,6 +16,13 @@ import logging
 import sys
 import traceback
 import random
+
+
+download_dir = os.path.abspath("D:\\NESgames\D")
+print("DOWNLOAD_DIR: " + download_dir)
+dd = download_dir.replace("\\", "\\\\")
+print("DD: " + dd)
+
 
 app = Flask(__name__, static_url_path='/static')
 socketio = SocketIO(app)
@@ -140,7 +150,7 @@ def is_download_complete(download_path, filename):
 def get_filename_from_webpage(driver):
     title_element = driver.find_element(By.CSS_SELECTOR, '#data-good-title')
     filename = title_element.text
-    return filename.replace('.iso', '.7z')
+    return filename.replace('.iso', '.zip').replace('.nes', '.zip')
 
 @socketio.on('start_download')
 def start_download(message):
@@ -153,21 +163,18 @@ def start_download(message):
     print("Starting download for URLs: ", urls)
 
     if driver is None:
-     # Create Chrome options and set the binary location to your custom path
-        chrome_binary_path = "./chrome-win/chrome.exe"
-        options = webdriver.ChromeOptions()
-        options.binary_location = chrome_binary_path
-        options.add_argument("--ignore-certificate-errors")
-        options.add_argument("--start-maximized")  # Put WebDriver in full-screen mode
-        options.add_argument("--disable-infobars")  # Disable infobars
-        options.add_argument("--force-device-scale-factor=0.7") # zoom the page 70% and prevent add clicking id="footerAd"
-          # Path to your chrome profile
-        #options.add_argument("user-data-dir=C:\\Users\\roger\\AppData\\Local\\Google\\Chrome\\User Data\\Profile 2")
-        #options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36')  # Set a realistic user-agent
-        options.add_experimental_option("excludeSwitches", ["enable-automation"])
-        options.add_experimental_option('useAutomationExtension', False)
-        # Create a new Chrome driver instance using the custom binary
-        driver = webdriver.Chrome(options=options)
+        # Install webdriver service and set chrome options
+        service = Service(ChromeDriverManager().install())
+        options = Options()
+        prefs = {
+            "download.default_directory": download_dir,
+            "download.prompt_for_download": False,
+            "download.directory_upgrade": True
+        }
+        options.add_experimental_option("prefs", prefs)
+
+        # Create a new Chrome driver instance using the downloaded service
+        driver = webdriver.Chrome(service=service, options=options)
 
 
     try:
@@ -196,7 +203,7 @@ def start_download(message):
             filename = get_filename_from_webpage(driver)  # Get the filename
 
             # Check if the download is complete
-            is_download_complete('C:\\Users\\roger\\Downloads', filename)
+            is_download_complete(dd, filename)
 
 
         
@@ -251,6 +258,6 @@ if __name__ == '__main__':
     logging.basicConfig(filename='app.log', level=logging.ERROR)
 
     try:
-        socketio.run(app, debug=False, port=5000)
+        socketio.run(app, debug=False, port=5000, allow_unsafe_werkzeug=True)
     except Exception as e:
         logging.error("Flask application error: %s", e)
