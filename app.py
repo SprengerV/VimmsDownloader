@@ -152,7 +152,7 @@ def get_last_downloaded(download_path):
         time.sleep(1)
         return get_last_downloaded(download_path)
     
-@app.route('bulkUrl', methods=['GET'])
+@app.route('/bulkUrl', methods=['POST'])
 def getBulkUrl():
     global driver
     url = message['url']
@@ -169,7 +169,7 @@ def getBulkUrl():
         driver.get(url)
 
         # Get URLs from page
-        
+
     except Exception as e:
         logging.error("Error during bulk fetch process: %s", e)
         traceback.print_exc(file=sys.stdout)  # Print the traceback
