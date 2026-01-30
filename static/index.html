@@ -3,6 +3,8 @@
 <head>
   <title>Downloader Queue Vimm's Lair Test Server</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
   <style>
     /* Basic styling for the form and input fields */
     form {
@@ -46,6 +48,91 @@
         <textarea class="form-control" name="urls" id="url-input" rows="5"></textarea>
       </div>
       <button type="submit" class="btn btn-primary" id="add-to-queue-btn">Add to Queue</button>
+    </form>
+
+    <form id="bulk-dl-form">
+      <div class="container">
+        <div class="row">
+          <div class="form-group col-md-6">
+            <label for="system-select">System:</label>
+            <select multiple id="system-select" class="form-control">
+              <option value="Atari2600">Atari 2600</option>
+              <option value="Atari5200">Atari 5200</option>
+              <option value="NES">Nintendo</option>
+              <option value="SMS">Master System</option>
+              <option value="Atari7800">Atari 7800</option>
+              <option value="TG16">TurboGrafx-16</option>
+              <option value="Genesis">Genesis</option>
+              <option value="TGCD">TurboGrafx-CD</option>
+              <option value="SNES">Super Nintendo</option>
+              <option value="CDi">CD-i</option>
+              <option value="SegaCD">Sega CD</option>
+              <option value="Jaguar">Jaguar</option>
+              <option value="32X">Sega 32X</option>
+              <option value="Saturn">Saturn</option>
+              <option value="PS1">PlayStation</option>
+              <option value="JaguarCD">Jaguar CD</option>
+              <option value="N64">Nintendo 64</option>
+              <option value="Dreamcast">Dreamcast</option>
+              <option value="PS2">PlayStation 2</option>
+              <option value="GameCube">GameCube</option>
+              <option value="Xbox">Xbox</option>
+              <option value="Xbox360">Xbox 360</option>
+              <option value="X360-D">Xbox 360 (Digital)</option>
+              <option value="PS3">PlayStation 3</option>
+              <option value="Wii">Wii</option>
+              <option value="WiiWare">WiiWare</option>
+              <div role="seperator" class="dropdown-divider"></div>
+              <option value="GB">Game Boy</option>
+              <option value="Lynx">Lynx</option>
+              <option value="GG">Game Gear</option>
+              <option value="VB">Virtual Boy</option>
+              <option value="GBC">Game Boy Color</option>
+              <option value="GBA">Game Boy Advance</option>
+              <option value="DS">Nintendo DS</option>
+              <option value="PSP">PlayStation Portable</option>
+              <option value="3DS">Nintendo 3DS</option>
+            </select>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="letter-select">Letter:</label>
+            <select multiple id="letter-select" class="form-control">
+              <option slected value="number">#</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+              <option value="E">E</option>
+              <option value="F">F</option>
+              <option value="G">G</option>
+              <option value="H">H</option>
+              <option value="I">I</option>
+              <option value="J">J</option>
+              <option value="K">K</option>
+              <option value="L">L</option>
+              <option value="M">M</option>
+              <option value="N">N</option>
+              <option value="O">O</option>
+              <option value="P">P</option>
+              <option value="Q">Q</option>
+              <option value="R">R</option>
+              <option value="S">S</option>
+              <option value="T">T</option>
+              <option value="U">U</option>
+              <option value="V">V</option>
+              <option value="W">W</option>
+              <option value="X">X</option>
+              <option value="Y">Y</option>
+              <option value="Z">Z</option>
+            </select>
+          </div>
+        </div>
+        <div class="row justify-content-end">
+          <div class="col col-md-2">
+            <button class="btn btn-secondary" id="get-urls" type="submit">Get URLs</button>
+          </div>
+        </div>
+      </div>
     </form>
 
     <h2>URLs in Queue:</h2>
