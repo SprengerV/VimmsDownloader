@@ -157,6 +157,37 @@ function createListItem(list, url, filename) {
     console.log('List item created and appended to list.');
 }
 
+// Function to handle bulk downloads
+function handleBulk(event) {
+  event.preventDefault();
+  
+  const system = getElementById('system-input').value;
+  const letter = getElementById('letter-input').value;
+  const urlInput = document.getElementById('url-input');
+  const url = 'https://vimm.net/vault/' + system + '/' + letter;
+
+  fetch('/bulkUrl', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json' // Set the Content-Type header
+    },
+    body: JSON.stringify({ url: url })
+  })
+  .then(res => {
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return res.json();
+  })
+  .then(data => {
+    data.forEach(val => urlInput.value += `${val}\n`);
+  });
+}
+
+
+// Add event listener to bulk download form
+const bulkForm = document.getElementById('bulk-dl-form');
+bulkForm.addEventListener('submit', handleBulk);
 
 // Function to handle form submission
 function handleSubmit(event) {
