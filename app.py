@@ -18,7 +18,7 @@ import traceback
 import random
 
 
-download_dir = os.path.abspath("D:\\NESgames\D")
+download_dir = os.path.abspath("D:\\NESgames\\S")
 print("DOWNLOAD_DIR: " + download_dir)
 dd = download_dir.replace("\\", "\\\\")
 print("DD: " + dd)
@@ -136,32 +136,44 @@ def add_url():
     
     queued_urls = retrieve_queued_urls()
     return jsonify({'message': 'URLs added to the queue.', 'queued_urls': queued_urls})
-    
-    
-#     # Function to check if a download is complete
-# def is_download_complete(download_path, filename):
-#     while not os.path.exists(os.path.join(download_path, filename)):
-#         time.sleep(1)
-    
-#     while os.path.exists(os.path.join(download_path, filename + ".crdownload")):
-#         time.sleep(1)
 
     # Function to get last downloaded file
 def get_last_downloaded(download_path):
     files = os.listdir(download_path)
     # Sort files by modification time
-    files.sort(key=lambda x: os.path.getmtime(os.path.join(download_path, x)))
-    if '.crdownload' in files[-1]:
+    if files:
+        files.sort(key=lambda x: os.path.getmtime(os.path.join(download_path, x)))
+        if '.crdownload' in files[-1]:
+            time.sleep(1)
+            return get_last_downloaded(download_path)
+        else:
+            return files[-1]
+    else:
         time.sleep(1)
         return get_last_downloaded(download_path)
-    else:
-        return files[-1]
+    
+@app.route('bulkUrl', methods=['GET'])
+def getBulkUrl():
+    global driver
+    url = message['url']
+    print("Fetching URLs from ", url)
 
-    # Function to get the filename from the webpage
-def get_filename_from_webpage(driver):
-    title_element = driver.find_element(By.CSS_SELECTOR, '#data-good-title')
-    filename = title_element.text
-    return filename.replace('.iso', '.zip').replace('.nes', '.zip')
+    if driver is None:
+        # Install webdriver service
+        service = Service(ChromeDriverManager().install())
+        
+        # Create a new Chrome driver instance using the downloaded service
+        driver = webdriver.Chrome(service=service)
+
+    try:
+        driver.get(url)
+
+        # Get URLs from page
+        
+    except Exception as e:
+        logging.error("Error during bulk fetch process: %s", e)
+        traceback.print_exc(file=sys.stdout)  # Print the traceback
+        emit('fetch_error', 'An error occurred during the fetch process.')   
 
 @socketio.on('start_download')
 def start_download(message):
