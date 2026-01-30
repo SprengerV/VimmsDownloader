@@ -161,13 +161,13 @@ function createListItem(list, url, filename) {
 function handleBulk(event) {
   event.preventDefault();
   
-  const system = getElementById('system-input').value;
-  const letter = getElementById('letter-input').value;
+  const system = document.getElementById('system-select').value;
+  const letter = document.getElementById('letter-select').value;
   const urlInput = document.getElementById('url-input');
   const url = 'https://vimm.net/vault/' + system + '/' + letter;
 
   fetch('/bulkUrl', {
-    method: 'GET',
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json' // Set the Content-Type header
     },
