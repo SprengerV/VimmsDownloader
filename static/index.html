@@ -167,7 +167,7 @@ function handleBulk(event) {
   const url = 'https://vimm.net/vault/' + system + '/' + letter;
 
   fetch('/bulkUrl', {
-    method: 'POST',
+    method: 'GET',
     headers: {
       'Content-Type': 'application/json' // Set the Content-Type header
     },
