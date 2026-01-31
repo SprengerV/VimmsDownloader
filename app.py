@@ -18,7 +18,7 @@ import traceback
 import random
 
 
-download_dir = os.path.abspath("D:\\NESgames\\S")
+download_dir = os.path.abspath("D:\\NESgames\\T")
 print("DOWNLOAD_DIR: " + download_dir)
 dd = download_dir.replace("\\", "\\\\")
 print("DD: " + dd)
@@ -155,7 +155,7 @@ def get_last_downloaded(download_path):
 @app.route('/bulkUrl', methods=['POST'])
 def getBulkUrl():
     global driver
-    url = message['url']
+    url = request.get_json()['url']
     print("Fetching URLs from ", url)
 
     if driver is None:
@@ -164,16 +164,38 @@ def getBulkUrl():
         
         # Create a new Chrome driver instance using the downloaded service
         driver = webdriver.Chrome(service=service)
-
     try:
         driver.get(url)
 
+        time.sleep(2)
+
         # Get URLs from page
+        try:
+            links = driver.find_elements(By.CSS_SELECTOR, 'td[style="width:auto"]')
+            urls = []
+
+            for index, element in enumerate(links):
+                urls.append(element.find_element(By.CSS_SELECTOR, 'a').get_attribute('href'))
+
+            # for index, element in enumerate(urls):
+            #     urls[index] = "https://vimms.net" + element
+            driver.quit()
+            driver = None
+
+            return jsonify(urls)
+        except NoSuchElementException:
+            driver.quit()
+            driver = None
+
+            return jsonify(['Error pulling up URLs'])
+        
 
     except Exception as e:
         logging.error("Error during bulk fetch process: %s", e)
         traceback.print_exc(file=sys.stdout)  # Print the traceback
-        emit('fetch_error', 'An error occurred during the fetch process.')   
+        return jsonify(['We had trouble finding that page...']) 
+
+    return jsonify(['These', 'would', 'be', 'urls'])
 
 @socketio.on('start_download')
 def start_download(message):
