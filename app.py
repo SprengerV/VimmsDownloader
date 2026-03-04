@@ -220,6 +220,7 @@ def get_all():
             menu = driver.find_element(By.id, 'vaultMenu')
             links = menu.find_elements(By.CSS_SELECTOR, 'a')
             letterUrls = []
+            gameUrls = []
 
             for index, element in enumerate(links):
                 letterUrls.append(element.getAttribute('href'))
@@ -238,12 +239,16 @@ def get_all():
                         
                         print('Saving URL: %s to database.', (url))
                         save_url_to_database(url)
+                        gameUrls.append(url)
                         print('URL: %s saved!', (url))
 
                     driver.quit()
                     driver = None
 
-                    return jsonify('URLs added to database!')
+                    return jsonify({
+                        'message': 'URLs added to the queue.',
+                        'queued_urls': gameUrls
+                    })
                 
                 except NoSuchElementException:
                     driver.quit()
