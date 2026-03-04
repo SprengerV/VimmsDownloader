@@ -18,7 +18,7 @@ import traceback
 import random
 
 
-download_dir = os.path.abspath("D:\\DSgames\\F")
+download_dir = os.path.abspath("D:\\DSgames")
 print("DOWNLOAD_DIR: " + download_dir)
 dd = download_dir.replace("\\", "\\\\")
 print("DD: " + dd)
@@ -183,25 +183,26 @@ def getBulkUrl():
             driver = None
 
             return jsonify(urls)
+        
         except NoSuchElementException:
             driver.quit()
             driver = None
 
             return jsonify(['Error pulling up URLs'])
         
-
     except Exception as e:
+        driver.quit()
+        driver = None
+    
         logging.error("Error during bulk fetch process: %s", e)
         traceback.print_exc(file=sys.stdout)  # Print the traceback
         return jsonify(['We had trouble finding that page...']) 
-
-    return jsonify(['These', 'would', 'be', 'urls'])
 
 @app.route('/getall', methods=['POST'])
 def get_all():
     global driver
 
-    console = requests.get_json(['console'])
+    console = request.get_json(['console'])
     print('Getting letters for console: ', console)
 
     if driver is None:
@@ -241,14 +242,6 @@ def get_all():
                         save_url_to_database(url)
                         gameUrls.append(url)
                         print('URL: %s saved!', (url))
-
-                    driver.quit()
-                    driver = None
-
-                    return jsonify({
-                        'message': 'URLs added to the queue.',
-                        'queued_urls': gameUrls
-                    })
                 
                 except NoSuchElementException:
                     driver.quit()
@@ -259,19 +252,24 @@ def get_all():
             driver.quit()
             driver = None
 
+            return jsonify({
+                'message': 'URLs added to the queue.',
+                'queued_urls': gameUrls
+            })
+        
         except NoSuchElementException:
             driver.quit()
             driver = None
 
             return jsonify(['Error pulling up URLs'])
         
-
     except Exception as e:
+        driver.quit()
+        driver = None
+
         logging.error("Error during bulk fetch process: %s", e)
         traceback.print_exc(file=sys.stdout)  # Print the traceback
-        return jsonify(['We had trouble finding that page...']) 
-
-    return jsonify(['These', 'would', 'be', 'urls'])
+        return jsonify(['We had trouble finding that console...']) 
 
 @socketio.on('start_download')
 def start_download(message):
