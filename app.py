@@ -18,7 +18,7 @@ import traceback
 import random
 
 
-download_dir = os.path.abspath("D:\\NESgames\\T")
+download_dir = os.path.abspath("D:\\DSgames\\F")
 print("DOWNLOAD_DIR: " + download_dir)
 dd = download_dir.replace("\\", "\\\\")
 print("DD: " + dd)
@@ -144,12 +144,12 @@ def get_last_downloaded(download_path):
     if files:
         files.sort(key=lambda x: os.path.getmtime(os.path.join(download_path, x)))
         if '.crdownload' in files[-1]:
-            time.sleep(1)
+            time.sleep(10)
             return get_last_downloaded(download_path)
         else:
             return files[-1]
     else:
-        time.sleep(1)
+        time.sleep(10)
         return get_last_downloaded(download_path)
     
 @app.route('/bulkUrl', methods=['POST'])
@@ -183,6 +183,77 @@ def getBulkUrl():
             driver = None
 
             return jsonify(urls)
+        except NoSuchElementException:
+            driver.quit()
+            driver = None
+
+            return jsonify(['Error pulling up URLs'])
+        
+
+    except Exception as e:
+        logging.error("Error during bulk fetch process: %s", e)
+        traceback.print_exc(file=sys.stdout)  # Print the traceback
+        return jsonify(['We had trouble finding that page...']) 
+
+    return jsonify(['These', 'would', 'be', 'urls'])
+
+@app.route('/getall', methods=['POST'])
+def get_all():
+    global driver
+
+    console = requests.get_json(['console'])
+    print('Getting letters for console: ', console)
+
+    if driver is None:
+        # Install webdriver service
+        service = Service(ChromeDriverManager().install())
+        
+        # Create a new Chrome driver instance using the downloaded service
+        driver = webdriver.Chrome(service=service)
+    try:
+        driver.get('https://vimms.net/vault/', console)
+
+        time.sleep(2)
+
+        # Get URLs from page
+        try:
+            menu = driver.find_element(By.id, 'vaultMenu')
+            links = menu.find_elements(By.CSS_SELECTOR, 'a')
+            letterUrls = []
+
+            for index, element in enumerate(links):
+                letterUrls.append(element.getAttribute('href'))
+                
+            for index, url in enumerate(letterUrls):
+                driver.get(url)
+
+                time.sleep(2)
+
+                # Get URLs from page
+                try:
+                    links = driver.find_elements(By.CSS_SELECTOR, 'td[style="width:auto"]')
+
+                    for index, element in enumerate(links):
+                        url = element.find_element(By.CSS_SELECTOR, 'a').get_attribute('href')
+                        
+                        print('Saving URL: %s to database.', (url))
+                        save_url_to_database(url)
+                        print('URL: %s saved!', (url))
+
+                    driver.quit()
+                    driver = None
+
+                    return jsonify('URLs added to database!')
+                
+                except NoSuchElementException:
+                    driver.quit()
+                    driver = None
+
+                    return jsonify(['Error pulling up URLs'])
+                
+            driver.quit()
+            driver = None
+
         except NoSuchElementException:
             driver.quit()
             driver = None
