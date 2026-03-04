@@ -98,6 +98,7 @@
             <label for="letter-select">Letter:</label>
             <select multiple id="letter-select" class="form-control">
               <option slected value="number">#</option>
+              <option value="all">All</option>
               <option value="A">A</option>
               <option value="B">B</option>
               <option value="C">C</option>
@@ -164,24 +165,55 @@ function handleBulk(event) {
   const system = document.getElementById('system-select').value;
   const letter = document.getElementById('letter-select').value;
   const urlInput = document.getElementById('url-input');
+  const urlList = document.getElementById('url-list');
   const url = 'https://vimm.net/vault/' + system + '/' + letter;
 
-  fetch('/bulkUrl', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json' // Set the Content-Type header
-    },
-    body: JSON.stringify({ url: url })
-  })
-  .then(res => {
-    if (!res.ok) {
-      throw new Error(`HTTP error! status: ${res.status}`);
-    }
-    return res.json();
-  })
-  .then(data => {
-    data.forEach(val => urlInput.value += `${val}\n`);
-  });
+  if (letter == 'all') {
+    fetch('/getall', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ console: system })
+    })
+    .then(res => {
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`)
+      }
+      return res.json();
+    })
+    .then(data => {
+      console.log(data);
+      // Enable the Start Download button if there are URLs in the queue
+      if (data.message === 'URLs added to the queue.') {
+          document.getElementById('start-download-btn').disabled = false;
+          // Clear the URL list
+          urlList.innerHTML = '';
+          // Display the URLs in the list
+          data.queued_urls.forEach(url => createListItem(urlList, url));
+      }
+    })
+    .catch(error => console.error(error));
+
+  } else {
+    fetch('/bulkUrl', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json' // Set the Content-Type header
+      },
+      body: JSON.stringify({ url: url })
+    })
+    .then(res => {
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      return res.json();
+    })
+    .then(data => {
+      data.forEach(val => urlInput.value += `${val}\n`);
+    })
+    .catch(error => console.error(error));
+  }
 }
 
 
