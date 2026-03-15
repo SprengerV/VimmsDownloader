@@ -18,7 +18,7 @@ import traceback
 import random
 
 
-download_dir = os.path.abspath("D:\\DSgames")
+download_dir = os.path.abspath("D:\\3DSgames")
 print("DOWNLOAD_DIR: " + download_dir)
 dd = download_dir.replace("\\", "\\\\")
 print("DD: " + dd)
@@ -202,7 +202,7 @@ def getBulkUrl():
 def get_all():
     global driver
 
-    console = request.get_json(['console'])
+    console = request.get_json()['console']
     print('Getting letters for console: ', console)
 
     if driver is None:
@@ -212,19 +212,19 @@ def get_all():
         # Create a new Chrome driver instance using the downloaded service
         driver = webdriver.Chrome(service=service)
     try:
-        driver.get('https://vimms.net/vault/', console)
+        driver.get('https://vimm.net/vault/' + console)
 
         time.sleep(2)
 
         # Get URLs from page
         try:
-            menu = driver.find_element(By.id, 'vaultMenu')
+            menu = driver.find_element(By.ID, 'vaultMenu')
             links = menu.find_elements(By.CSS_SELECTOR, 'a')
             letterUrls = []
             gameUrls = []
 
             for index, element in enumerate(links):
-                letterUrls.append(element.getAttribute('href'))
+                letterUrls.append(element.get_attribute('href'))
                 
             for index, url in enumerate(letterUrls):
                 driver.get(url)
